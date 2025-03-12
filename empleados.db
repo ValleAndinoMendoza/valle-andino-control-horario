@@ -1,0 +1,56 @@
+# Archivo index.html (Frontend simple)
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Control Horario Valle Andino</title>
+</head>
+<body>
+    <h2>Registro de entrada/salida</h2>
+    <form method="POST">
+        <select name="empleado" required>
+            {% for empleado in empleados %}
+                <option value="{{empleado[0]}}">{{empleado[1]}}</option>
+            {% endfor %}
+        </select><br><br>
+        <select name="tipo_registro">
+            <option value="entrada">Entrada</option>
+            <option value="salida">Salida</option>
+        </select><br><br>
+        <button type="submit">Registrar</button>
+    </form>
+</body>
+</html>
+
+
+# Crear Base de Datos inicial (SQLite)
+import sqlite3
+
+conn = sqlite3.connect('empleados.db')
+c = conn.cursor()
+
+# Crear tabla empleados
+c.execute('''CREATE TABLE empleados (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL,
+                valor_hora REAL DEFAULT 0
+            )''')
+
+# Crear tabla registros_horarios
+c.execute('''CREATE TABLE registros_horarios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id_empleado INTEGER,
+                tipo_registro TEXT,
+                fecha_hora TEXT,
+                FOREIGN KEY(id_empleado) REFERENCES empleados(id)
+            )''')
+
+# Insertar empleados fijos
+empleados = [
+    ('Quinteros Eduardo',), ('Guilardi Gabriela',), ('Quinteros Lorena',),
+    ('Quinteros Ruth',), ('Quinteros Joel',), ('Ramirez Joana',),
+    ('Ramirez Jazmin',), ('Ramirez Daniel',), ('Rivas Elena',)
+]
+c.executemany('INSERT INTO empleados (nombre) VALUES (?)', empleados)
+
+conn.commit()
+conn.close()
